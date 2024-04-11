@@ -13,6 +13,7 @@ class Crawler:
         self.visited_urls = []
         self.urls_to_visit = urls
         self.pdf_links = []
+        self.img_links=[]
 
     def download_url(self, url):
         return requests.get(url).text
@@ -24,7 +25,12 @@ class Crawler:
             if path and path.startswith('/'):
                 path = urljoin(url, path)
             yield path
-
+        for link in soup.find_all('img'):
+            path = link.get('src')
+            if path and path.startswith('/'):
+                path = urljoin(url,path)
+            if path not in self.img_links:
+                self.img_links.append(path)
     def add_url_to_visit(self, url):
         if url not in self.visited_urls and url not in self.urls_to_visit:
             self.urls_to_visit.append(url)
@@ -49,16 +55,21 @@ class Crawler:
             except Exception:
                 logging.exception(f'Failed to crawl: {url}')
 
-        print("collected urls:")
+        print("<----collected urls---->")
         count = 0
         for j in self.visited_urls:
             count += 1
             print(f'{count}){j}')
-        print("collected pdfs:")
+        print("<----collected pdfs---->")
         count= 0
         for i in self.pdf_links:
             count += 1
             print(f"{count}){i}")
+        print("<----collected image links---->")
+        count =0 
+        for k in self.img_links:
+            count+=1
+            print(f'{count}){k}')
 
 if __name__ == '__main__':
     url = 'https://krittikaiitb.github.io/'
